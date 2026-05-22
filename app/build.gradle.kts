@@ -10,12 +10,13 @@ plugins {
 
 android {
     namespace  = "com.example.wayflock"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.wayflock"
         minSdk        = 26          // Location & ForegroundService APIs are stable from 26+
-        targetSdk     = 35
+        //noinspection OldTargetApi
+        targetSdk     = 36
         versionCode   = 1
         versionName   = "1.0"
 
@@ -120,6 +121,8 @@ dependencies {
 
     // Image Loading for AsyncImage
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
     // ── Debug only ────────────────────────────────────────────────────────
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
