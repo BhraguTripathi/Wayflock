@@ -1,13 +1,5 @@
 package com.example.wayflock.ui.screens.home
 
-import android.app.Activity
-import android.graphics.Color
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,21 +22,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.GroupAdd
-import androidx.compose.material.icons.rounded.LocationOn
-import androidx.compose.material.icons.rounded.People
 import androidx.compose.material.icons.rounded.PersonAdd
-import androidx.compose.material.icons.rounded.SignalCellularAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,9 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -62,25 +45,20 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import com.example.wayflock.R
 import com.example.wayflock.domain.model.Trip
+import com.example.wayflock.ui.components.ActiveTripCard
 import com.example.wayflock.ui.components.BottomNavItem
 import com.example.wayflock.ui.components.CustomBottomNavigationBar
+import com.example.wayflock.ui.components.IconLabelRow
 import com.example.wayflock.ui.components.NatureSceneHeader
 import com.example.wayflock.ui.components.SectionHeader
 import com.example.wayflock.ui.components.TripDisplayStatus
 import com.example.wayflock.ui.components.TripStatusBadge
 import com.example.wayflock.ui.components.TripThumbnail
 import com.example.wayflock.ui.components.UserAvatarWithDot
-import com.example.wayflock.ui.theme.BadgeLiveBackground
-import com.example.wayflock.ui.theme.BadgeLiveText
-import com.example.wayflock.ui.theme.BadgeShape
 import com.example.wayflock.ui.theme.CardShapeDefault
-import com.example.wayflock.ui.theme.CardShapeFeatured
 import com.example.wayflock.ui.theme.IconContainerShape
-import com.example.wayflock.ui.theme.LiveBadgeText
-import com.example.wayflock.ui.theme.OnlineDot
 import com.example.wayflock.ui.theme.WayflockTheme
 import com.example.wayflock.ui.theme.WayflockTypography
 
@@ -96,26 +74,9 @@ fun HomeScreen(
     val activeTrip = remember { sampleActiveTrip }
     val recentTrip = remember { sampleRecentTrip }
 
-    val view = LocalView.current
 //    val isDark = isSystemInDarkTheme()
 
     var currentTab by remember { mutableStateOf(BottomNavItem.Home) }
-
-    DisposableEffect(view) {
-        val window = (view.context as Activity).window
-        val windowInsetsController = WindowCompat.getInsetsController(window, view)
-
-        window.statusBarColor = Color.TRANSPARENT
-
-        // TODO: Change `false` to `!isDark` when implementing dark mode depending on image brightness
-        windowInsetsController.isAppearanceLightStatusBars = false
-
-        onDispose {
-            window.statusBarColor = Color.WHITE
-            // TODO: Change 'true' to '!isDark' when implementing dark mode
-            windowInsetsController.isAppearanceLightStatusBars = true
-        }
-    }
 
     Scaffold(
         // WHY explicit containerColor?
@@ -425,141 +386,6 @@ fun DecorativeMemberDots(
     }
 }
 
-// Active Trip Card
-@Composable
-fun ActiveTripCard(
-    trip : Trip,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-){
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = CardShapeFeatured,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        elevation = CardDefaults.cardElevation(2.dp),
-    ) {
-        Column {
-
-            // Top Content Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                // Thumbnail
-                TripThumbnail(
-                    imageUrl = trip.imageUrl,
-                    size = 80.dp,
-                    cornerRadius = 12.dp
-                )
-
-                Spacer(Modifier.width(14.dp))
-
-                // Trip Info Column
-                Column(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = trip.name,
-                            style = WayflockTypography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        if (trip.isLive == true) {
-                            Spacer(Modifier.width(8.dp))
-                            LiveBadge()
-                        }
-                    }
-
-                    Spacer(Modifier.width(8.dp))
-
-                    // Members count row
-                    IconLabelRow(
-                        icon = Icons.Rounded.People,
-                        label = "${trip.membersCount} Members"
-                    )
-
-                    Spacer(Modifier.height(4.dp))
-
-                    // Location row
-                    IconLabelRow(
-                        icon = Icons.Rounded.LocationOn,
-                        label = trip.location.orEmpty()
-                    )
-                }
-
-                Spacer(Modifier.width(8.dp))
-
-                // Chevron arrow button
-                Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Rounded.ChevronRight, null,
-                        tint     = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
-
-            // Divider
-            HorizontalDivider(
-                color     = MaterialTheme.colorScheme.outlineVariant,
-                thickness = 0.8.dp,
-            )
-
-            // Status Footer Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    PulsingDot()
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text  = trip.status.orEmpty(),
-                        style = WayflockTypography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                VerticalDivider(
-                    modifier = Modifier.height(14.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    thickness = 0.8.dp,
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text  = "Last updated: ${trip.lastUpdated}",
-                        style = WayflockTypography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Icon(
-                        Icons.Rounded.SignalCellularAlt, null,
-                        tint     = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp),
-                    )
-                }
-            }
-        }
-    }
-}
-
 // Recent Trip Item
 @Composable
 fun RecentTripItem(
@@ -615,78 +441,6 @@ fun RecentTripItem(
         }
     }
 }
-
-// Live Badge
-@Composable
-fun LiveBadge(
-    modifier: Modifier = Modifier,
-){
-    Surface(
-        modifier = modifier,
-        shape = BadgeShape,
-        color = BadgeLiveBackground
-    ) {
-        Text(
-            text = "LIVE",
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-            style = LiveBadgeText,
-            color = BadgeLiveText,
-        )
-    }
-}
-
-// Pulsing Dot
-@Composable
-fun PulsingDot(
-    modifier: Modifier = Modifier
-){
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1.0f,
-        targetValue = 1.5f,
-        animationSpec = infiniteRepeatable(
-            animation  = tween(700, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "dotScale"
-    )
-    Box(
-        modifier = Modifier
-            .size(9.dp)
-            .scale(scale)
-            .clip(CircleShape)
-            .background(OnlineDot)
-    )
-}
-
-// Icon label row
-@Composable
-fun IconLabelRow(
-    icon: ImageVector,
-    label: String,
-    modifier: Modifier = Modifier,
-    iconSize: androidx.compose.ui.unit.Dp = 15.dp,
-    textStyle: androidx.compose.ui.text.TextStyle = WayflockTypography.bodyMedium,
-){
-    Row(
-        modifier          = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector        = icon,
-            contentDescription = null,
-            tint               = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier           = Modifier.size(iconSize),
-        )
-        Spacer(Modifier.width(5.dp))
-        Text(
-            text  = label,
-            style = textStyle,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
 
 // Sample Data
 private val sampleActiveTrip = Trip(
